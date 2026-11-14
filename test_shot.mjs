@@ -1,0 +1,17 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 640, height: 400 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message)); 
+await p.addInitScript(() => { window.__manual = true; });
+await p.goto('http://127.0.0.1:6070/'); await p.waitForSelector('#start', { state: 'visible', timeout: 150000 });
+await p.click('#start');
+const adv = s => p.evaluate(s => { for (let i = 0; i < Math.round(s * 60); i++) __game.step(1 / 60); }, s);
+await adv(2.4); await p.waitForTimeout(1500);
+await p.screenshot({ path: '/tmp/shot_idle.png' });
+await p.keyboard.down('KeyW'); await adv(0.8); await p.waitForTimeout(1500);
+await p.screenshot({ path: '/tmp/shot_run.png' });
+await p.keyboard.up('KeyW'); await adv(0.5);
+await p.keyboard.press('KeyQ'); await adv(0.6); await p.waitForTimeout(1500);
+await p.screenshot({ path: '/tmp/shot_q.png' });
+console.log('errs', errs.join('|') || 'tidak ada'); await b.close();

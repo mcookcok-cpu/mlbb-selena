@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b0a14">
+<title>Selena Zenith — Preview 3D HD</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%236d28d9%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27700%27%3ES%3C/text%3E%3C/svg%3E">
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
+<style>
+:root{--bg:#0b0a14;--panel:rgba(18,16,34,.86);--line:rgba(139,92,246,.35);--acc:#a78bfa;--acc2:#22d3ee;--txt:#e9e6ff;--mut:#9a95c4}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+#top{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;background:linear-gradient(#0b0a14cc,#0b0a1400);z-index:5;pointer-events:none}
+#top>*{pointer-events:auto}
+#top h1{font-size:15px;margin:0;font-weight:700;letter-spacing:.3px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#top h1 small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.btn,.chip{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:10px;padding:8px 11px;font:inherit;cursor:pointer;backdrop-filter:blur(8px);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:active,.chip:active{transform:scale(.97)}
+.btn.on,.chip.on{background:linear-gradient(135deg,#6d28d9,#0891b2);border-color:transparent}
+#fps{font-size:11px;color:var(--mut);min-width:48px;text-align:right}
+#loading{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 40%,#2a1659,#0b0a14 70%);transition:opacity .6s}
+#loading.done{opacity:0;pointer-events:none}
+#loading .t{font-size:22px;font-weight:800;letter-spacing:2px;background:linear-gradient(90deg,#c4b5fd,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+#bar{width:min(70vw,320px);height:6px;border-radius:6px;background:#ffffff18;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#22d3ee);transition:width .15s}
+#lmsg{color:var(--mut);font-size:12px}
+#hud{position:fixed;left:0;right:0;bottom:calc(var(--sheet-h,0px) + 8px);z-index:4;display:flex;gap:8px;align-items:center;padding:0 10px;transition:bottom .25s}
+#hud input[type=range]{flex:1}
+#hud .time{font-variant-numeric:tabular-nums;font-size:12px;color:var(--mut);min-width:78px;text-align:right}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);backdrop-filter:blur(14px);border-radius:16px 16px 0 0;transform:translateY(calc(100% - 54px - env(safe-area-inset-bottom)));transition:transform .28s;max-height:58vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+#sheet.open{transform:none}
+#tabs{display:flex;gap:6px;padding:8px 10px;overflow-x:auto;flex:none;scrollbar-width:none}
+#tabs::-webkit-scrollbar{display:none}
+#tabs .chip{white-space:nowrap;padding:7px 12px}
+#body{overflow:auto;padding:4px 12px 14px;flex:1;-webkit-overflow-scrolling:touch}
+.row{display:flex;align-items:center;gap:10px;margin:9px 0}
+.row label{flex:0 0 112px;color:var(--mut);font-size:12.5px}
+.row input[type=range]{flex:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+.grid .btn{justify-content:space-between}
+.grid small{color:var(--mut)}
+.sec{margin:14px 0 4px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc)}
+input[type=range]{accent-color:#8b5cf6;height:26px}
+input[type=checkbox]{accent-color:#8b5cf6;width:18px;height:18px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+.kv b{color:var(--mut);font-weight:500}
+.note{color:var(--mut);font-size:12px;margin:6px 0}
+.swatch{display:flex;gap:8px;margin:6px 0}
+.swatch i{width:30px;height:30px;border-radius:8px;border:2px solid transparent;cursor:pointer}
+.swatch i.on{border-color:#fff}
+@media(min-width:760px){#sheet{left:auto;right:12px;width:420px;border-radius:16px;bottom:12px;max-height:72vh}#hud{right:444px}}
+</style></head><body>
+<canvas id="c" tabindex="0"></canvas>
+<div id="top">
+  <h1>Selena · Zenith<small>Decode dari com.mobile.legends · model HD</small></h1>
+  <span id="fps"></span>
+  <a class="btn" href="/gallery.html">Galeri aset</a>
+  <button class="btn" id="shot" title="Simpan gambar">📷</button>
+</div>
+<div id="hud">
+  <button class="btn" id="play">⏸</button>
+  <input type="range" id="scrub" min="0" max="1000" value="0">
+  <span class="time" id="time">0.0 / 0.0 s</span>
+</div>
+<div id="sheet"><div id="tabs"></div><div id="body"></div></div>
+<div id="loading"><div class="t">SELENA ZENITH</div><div id="bar"><i></i></div><div id="lmsg">Memuat model…</div></div>
+<script type="module" src="/viewer.js?v=3"></script>
+</body></html>

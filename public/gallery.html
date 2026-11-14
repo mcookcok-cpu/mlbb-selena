@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0a14"><title>Galeri aset — Selena Zenith</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%236d28d9%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27 font-weight=%27700%27%3ES%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0b0a14;--panel:#15122a;--line:rgba(139,92,246,.35);--acc:#a78bfa;--mut:#9a95c4;--txt:#e9e6ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#0b0a14ee;backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 8px) 10px 8px}
+.top{display:flex;gap:8px;align-items:center}
+h1{font-size:16px;margin:0;flex:1}
+a.btn,button.chip,.btn{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:10px;padding:7px 11px;font:inherit;text-decoration:none;cursor:pointer}
+.chip.on{background:linear-gradient(135deg,#6d28d9,#0891b2);border-color:transparent}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-top:8px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs .chip{white-space:nowrap}
+input.q{width:100%;margin-top:8px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#0f0d20;color:var(--txt);font:inherit}
+main{padding:10px 10px 40px}
+.grp{margin:18px 0 6px;color:var(--acc);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.bn{margin:12px 0 4px;font-size:13px;color:var(--mut);word-break:break-all}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.card{background:var(--panel);border:1px solid #ffffff10;border-radius:10px;overflow:hidden;cursor:pointer}
+.card img{display:block;width:100%;aspect-ratio:1;object-fit:contain;background:repeating-conic-gradient(#1b1833 0 25%,#13112a 0 50%) 50%/16px 16px}
+.card span{display:block;padding:4px 6px;font-size:10.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lb{position:fixed;inset:0;background:#000d;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
+#lb.on{display:flex}
+#lb img{max-width:96vw;max-height:76vh;object-fit:contain;background:repeating-conic-gradient(#1b1833 0 25%,#13112a 0 50%) 50%/20px 20px;border-radius:8px}
+.row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--panel);border:1px solid #ffffff10;border-radius:10px;margin:6px 0}
+.row .n{flex:1;min-width:0;font-size:12.5px;word-break:break-all}.row small{color:var(--mut)}
+audio{height:34px;max-width:55vw}
+.sum{color:var(--mut);font-size:12px;margin-top:6px}
+</style></head><body>
+<header>
+  <div class="top"><h1>Galeri aset · Selena Zenith</h1><a class="btn" href="/">← Viewer 3D</a></div>
+  <div class="tabs" id="tabs"></div>
+  <input class="q" id="q" placeholder="Cari nama (mis. skill01, hair, noise)…" type="search">
+</header>
+<main id="m">Memuat…</main>
+<div id="lb"><img id="lbi"><div id="lbt" style="color:#9a95c4;font-size:12px"></div><div style="display:flex;gap:8px"><a class="btn" id="lbd" download>Unduh PNG</a><button class="btn" onclick="lb.classList.remove('on')">Tutup</button></div></div>
+<script>
+const $=s=>document.querySelector(s), m=$('#m'), lb=$('#lb');
+let inv, tab='tex', q='';
+const TABS=[['tex','Tekstur'],['ui','UI & ikon'],['mesh','Mesh OBJ'],['audio','Audio']];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function open_(p,t){ $('#lbi').src='/assets/'+p; $('#lbt').textContent=t; $('#lbd').href='/assets/'+p; lb.classList.add('on'); }
+lb.onclick=e=>{ if(e.target===lb) lb.classList.remove('on'); };
+function render(){
+  [...$('#tabs').children].forEach((b,i)=>b.classList.toggle('on',TABS[i][0]===tab));
+  const f=n=>!q||n.toLowerCase().includes(q);
+  let h='';
+  if(tab==='tex'||tab==='ui'){
+    const groups={}; let total=0;
+    for(const b of inv.bundles){ const isUI=b.group==='UI & ikon'; if((tab==='ui')!==isUI) continue;
+      const items=[...b.textures,...b.sprites].filter(x=>f(x.name)||f(b.name)); if(!items.length) continue;
+      (groups[b.group]??=[]).push([b,items]); total+=items.length; }
+    h+=`<div class="sum">${total} gambar</div>`;
+    for(const [g,list] of Object.entries(groups)){ h+=`<div class="grp">${esc(g)}</div>`;
+      for(const [b,items] of list){ h+=`<div class="bn">${esc(b.name)} · ${items.length}</div><div class="grid">`+items.map(x=>`<div class="card" data-p="${esc(x.path)}" data-t="${esc(x.name)} · ${x.w}×${x.h}"><img loading="lazy" src="/assets/${x.thumb}"><span>${esc(x.name)}</span></div>`).join('')+'</div>'; } }
+  } else if(tab==='mesh'){
+    let n=0; for(const b of inv.bundles){ const it=b.meshes.filter(x=>f(x.name)||f(b.name)); if(!it.length) continue; n+=it.length;
+      h+=`<div class="bn">${esc(b.name)}</div>`+it.map(x=>`<div class="row"><div class="n">${esc(x.name)}</div><a class="btn" href="/assets/${x.path}" download>.obj</a></div>`).join(''); }
+    h=`<div class="sum">${n} mesh efek/prop (OBJ). Model HD karakter ada di <a style="color:#a78bfa" href="/models/selena_zenith_hd.glb">selena_zenith_hd.glb</a>.</div>`+h;
+  } else {
+    const by={}; for(const a of inv.audio){ if(f(a.bank)||f(a.id)) (by[a.bank]??=[]).push(a); }
+    const lab={vo_1631:'Suara karakter (default)',vo_1631_m_id:'Suara karakter (Indonesia)',vo_1631_m_ja:'Suara karakter (Jepang)',sfx_1631:'Efek suara skill',show_1631:'Musik/ambience showcase',show_vo_1631:'Suara showcase',show_vo_1631_m_id:'Suara showcase (ID)',show_vo_1631_m_ja:'Suara showcase (JP)'};
+    h+=`<div class="sum">${inv.audio.length} klip audio (Wwise .bnk → OGG)</div>`;
+    for(const [b,list] of Object.entries(by)){ h+=`<div class="grp">${esc(lab[b]||b)} · ${list.length}</div>`+list.map(a=>`<div class="row"><div class="n">${esc(a.bank)} / ${esc(a.id)}<br><small>${a.dur}s</small></div><audio controls preload="none" src="/assets/${a.path}"></audio></div>`).join(''); }
+  }
+  m.innerHTML=h||'<div class="sum">Tidak ada hasil.</div>';
+  m.querySelectorAll('.card').forEach(c=>c.onclick=()=>open_(c.dataset.p,c.dataset.t));
+}
+TABS.forEach(([id,n])=>{const b=document.createElement('button');b.className='chip';b.textContent=n;b.onclick=()=>{tab=id;render()};$('#tabs').appendChild(b)});
+$('#q').oninput=e=>{q=e.target.value.trim().toLowerCase();render()};
+fetch('/assets/inventory.json').then(r=>r.json()).then(j=>{inv=j;render()});
+</script></body></html>

@@ -1,0 +1,14 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 390, height: 780 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+await p.addInitScript(() => { window.__manual = true; });
+await p.goto('http://127.0.0.1:6070/'); await p.waitForSelector('#start', { state: 'visible', timeout: 150000 }); await p.click('#start');
+const adv = s => p.evaluate(s => { for (let i = 0; i < Math.round(s * 60); i++) __game.step(1 / 60); }, s);
+await adv(2.0 + 9); await p.waitForTimeout(2500);
+await p.screenshot({ path: '/tmp/s_with.png' });
+await p.evaluate(() => { __game.model.visible = false; }); await p.waitForTimeout(2500);
+await p.screenshot({ path: '/tmp/s_without.png' });
+console.log('state', JSON.stringify(await p.evaluate(() => ({ s: __game.S.state, d: Math.floor(__game.S.dist), obs: __game.obs.map(o => o.type + '@' + o.lane + ':' + Math.round(o.z)).join(' ') }))), 'errs', errs.join('|') || 'tidak ada');
+await b.close();

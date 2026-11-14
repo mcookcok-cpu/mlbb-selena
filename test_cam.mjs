@@ -1,0 +1,13 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport: { width: 320, height: 200 } }); const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.addInitScript(() => { window.__manual = true; window.__norender = true; });
+await p.goto('http://127.0.0.1:6070/'); await p.waitForSelector('#start', { state: 'visible', timeout: 150000 }); await p.click('#start');
+const adv = s => p.evaluate(s => { for (let i = 0; i < Math.round(s * 60); i++) __game.step(1 / 60); }, s);
+const info = () => p.evaluate(() => { const g = __game; return { yawKam: +g.cam.yaw.toFixed(2), yawKarakter: +g.P.yaw.toFixed(2), jarakKameraKarakter: +Math.hypot(g.cam.tgt.x - g.P.pos.x, g.cam.tgt.z - g.P.pos.z).toFixed(2) }; });
+await adv(2.4); console.log('awal', JSON.stringify(await info()));
+await p.keyboard.down('KeyW'); await p.keyboard.down('KeyD'); await adv(3); console.log('W+D 3 dtk', JSON.stringify(await info()));
+await p.keyboard.up('KeyD'); await adv(2); console.log('W lurus', JSON.stringify(await info()));
+await p.keyboard.up('KeyW'); await p.keyboard.down('KeyD'); const a = await info(); await adv(2); console.log('D murni (kamera tak berputar)', JSON.stringify(a), '->', JSON.stringify(await info()));
+console.log('errors', errs.join('|') || 'tidak ada'); await b.close();

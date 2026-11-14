@@ -1,0 +1,16 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 390, height: 780 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.addInitScript(() => { window.__manual = true; localStorage.clear(); });
+await p.goto('http://127.0.0.1:6070/'); await p.waitForSelector('#menu.on', { timeout: 150000 });
+await p.evaluate(() => { document.getElementById('m-play').click(); for (let i = 0; i < 200; i++) __game.step(1 / 60); __game.obs.length = 0; });
+await p.waitForTimeout(2500);
+await p.screenshot({ path: '/tmp/face_rot0.png' });
+const info = await p.evaluate(() => { const m = __game.model; return { rot: m.parent.rotation.y }; });
+await p.evaluate(() => { __game.model.parent.rotation.y = Math.PI; });
+await p.waitForTimeout(2500);
+await p.screenshot({ path: '/tmp/face_rotPI.png' });
+console.log(JSON.stringify(info), 'ERR', errs.join('|') || 'tidak ada');
+await b.close();

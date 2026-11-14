@@ -1,0 +1,15 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 390, height: 780 } });
+await p.addInitScript(() => { window.__manual = true; localStorage.clear(); });
+await p.goto('http://127.0.0.1:6070/'); await p.waitForSelector('#menu.on', { timeout: 150000 });
+await p.evaluate(() => { document.getElementById('m-play').click(); for (let i = 0; i < 200; i++) __game.step(1 / 60); __game.obs.length = 0; });
+const mode = (rot, only) => p.evaluate(([rot, only]) => { const m = __game.model; m.parent.rotation.y = rot; m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) { const n = o.name.toLowerCase(); o.visible = only === 'none' ? false : only === 'all' ? true : n.includes(only); if (o.material && o.material.side !== undefined) {} } }); return m.children.length; }, [rot, only]);
+const shot = async n => { await p.waitForTimeout(2200); await p.screenshot({ path: `/tmp/fo_${n}.png` }); };
+await mode(0, 'none'); await shot('none');
+await mode(0, 'face01'); await shot('face_rot0');
+await mode(Math.PI, 'face01'); await shot('face_rotPI');
+await mode(0, 'hair01'); await shot('hair_rot0');
+await mode(Math.PI, 'hair01'); await shot('hair_rotPI');
+await b.close();

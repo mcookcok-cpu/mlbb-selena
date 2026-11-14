@@ -1,0 +1,12 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 640, height: 400 } });
+await p.addInitScript(() => { window.__manual = true; });
+await p.goto('http://127.0.0.1:6070/'); await p.waitForSelector('#start', { state: 'visible', timeout: 150000 });
+await p.click('#start');
+await p.evaluate(() => { for (let i = 0; i < 150; i++) __game.step(1 / 60); });
+await p.waitForTimeout(1500); await p.screenshot({ path: '/tmp/a_with.png' });
+await p.evaluate(() => { __game.model.visible = false; }); await p.waitForTimeout(1500); await p.screenshot({ path: '/tmp/a_without.png' });
+const info = await p.evaluate(() => { const g = __game, T = g.THREE; const box = new T.Box3().setFromObject(g.model); const pv = new T.Vector3(); g.pel.getWorldPosition(pv); return { pelvis: pv.toArray().map(x => +x.toFixed(2)), cam: g.cam.pos, camPos: __game.THREE && null }; });
+console.log(JSON.stringify(info)); await b.close();

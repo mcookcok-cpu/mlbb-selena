@@ -1,0 +1,23 @@
+import { chromium } from 'playwright-core';
+const exe = process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome';
+const b = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const pg = await b.newPage({ viewport: { width: 400, height: 800 } });
+const errs = []; pg.on('pageerror', e => errs.push(String(e)));
+await pg.addInitScript(() => { window.__manual = true; window.__norender = true; });
+await pg.goto('http://127.0.0.1:6070/');
+await pg.waitForFunction(() => window.__game && window.__game.model, null, { timeout: 60000 });
+await pg.waitForSelector('#menu.on', { timeout: 150000 });
+await pg.evaluate(() => { document.getElementById('m-play').click(); for (let i = 0; i < 160; i++) __game.step(1 / 60); });
+const st = await pg.evaluate(() => ({ s: __game.S.state, py: +__game.S.py.toFixed(2), rotY: +window.__game.model.parent.rotation.y.toFixed(3) }));
+console.log('state', JSON.stringify(st));
+const r = await pg.evaluate(() => {
+  const { THREE, model } = window.__game;
+  model.updateWorldMatrix(true, true);
+  const c = {};
+  model.traverse(o => { if (o.isMesh || o.isSkinnedMesh) { const n = o.name.toLowerCase(); for (const k of ['face01', 'hair01', 'qunzi01']) if (n.includes(k)) { const bb = new THREE.Box3().setFromObject(o); const v = new THREE.Vector3(); bb.getCenter(v); c[k] = [+v.x.toFixed(3), +v.z.toFixed(3)]; } } });
+  return c;
+});
+console.log(JSON.stringify(r));
+if (r.face01 && r.hair01) console.log('face.z - hair.z =', (r.face01[1] - r.hair01[1]).toFixed(3), r.face01[1] < r.hair01[1] ? '=> MENJAUHI kamera (benar)' : '=> MENGHADAP kamera');
+console.log('ERRORS:', errs.length ? errs.join('|') : 'tidak ada');
+await b.close();
